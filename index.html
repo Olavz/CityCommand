@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+</head>
+<body onload="init();">
+  <canvas id="demoCanvas" width="1200" height="840" style="background: #f1f1f1;"></canvas>
+  <br>
+  <input type="text">
+</body>
+
+<script>
+  function init() {
+    var stage = new createjs.Stage("demoCanvas");
+
+	var image = new createjs.Bitmap("stageCity01.png");
+	stage.addChild(image);
+
+	var image2 = new createjs.Bitmap("stageCity01.png");
+	stage.addChild(image2);
+
+    var circle = new createjs.Shape();
+	circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 50);
+	circle.x = 100;
+	circle.y = 100;
+	//stage.addChild(circle);
+	image2.x = -1200;
+
+	createjs.Ticker.addEventListener("tick", handleTick);
+	function handleTick(event) {
+	    image.x += 1;
+	    image2.x += 1;
+	    stage.update();
+	}
+  }
+</script>
+</html
