@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CityCommand</title>
+
+	<script src="preloadjs-NEXT.min.js"></script>
+	<script src="easeljs-NEXT.combined.js"></script>
+	<!-- We also provide hosted minified versions of all CreateJS libraries.
+	  http://code.createjs.com -->
+
+<script id="editable">
+	var stage, w, h, loader;
+	var house, road, redCar;
+	var cars = new Array();
+	function init() {
+		
+		stage = new createjs.Stage("testCanvas");
+		// grab canvas width and height for later calculations:
+		w = stage.canvas.width;
+		h = stage.canvas.height;
+		manifest = [
+			{src: "road.png", id: "road"},
+			{src: "house.png", id: "house"},
+			{src: "redCar.png", id: "redCar"},
+			{src: "greenCar.png", id: "greenCar"}
+		];
+		loader = new createjs.LoadQueue(false);
+		loader.addEventListener("complete", handleComplete);
+		loader.loadManifest(manifest, true, "");
+	}
+	function handleComplete() {
+		var roadImg = loader.getResult("road");
+		road = new createjs.Shape();
+		road.graphics.beginBitmapFill(roadImg).drawRect(0, 0, w + roadImg.width, roadImg.height);
+		road.tileW = roadImg.width;
+		road.y = h - roadImg.height - 30;
+		stage.addChild(road);
+		
+		cars.push(addCar());
+		cars.push(addCar());
+		
+		var redCarImg = loader.getResult("redCar");
+		redCar = new createjs.Shape();
+		redCar.graphics.beginBitmapFill(redCarImg).drawRect(0, 0, redCarImg.width, redCarImg.height);
+		redCar.y = h - redCarImg.height - 100;
+		redCar.x = w/3;
+		stage.addChild(redCar);
+		
+		createjs.Ticker.timingMode = createjs.Ticker.RAF;
+		createjs.Ticker.addEventListener("tick", tick);
+	}
+
+	function tick(event) {
+		var deltaS = event.delta / 1000;
+		road.x = (road.x - deltaS * 150) % road.tileW;
+		stage.update(event);
+	}
+	
+	function addCar() {
+		var greenCarImg = loader.getResult("greenCar");
+		var car = new createjs.Shape();
+		car.graphics.beginBitmapFill(greenCarImg).drawRect(0, 0, greenCarImg.width, greenCarImg.height);
+		car.y = h - greenCarImg.height - 100;
+		car.x = rand(0, w);
+		stage.addChild(car);
+		return car;
+	}
+	
+	function rand(min, max) {
+		return Math.floor((Math.random() * max) + min);
+	}
+	
+</script>
+</head>
+
+<body onload="init();">
+
+<div>
+	<canvas id="testCanvas" width="1200" height="600" style="background:skyblue;"></canvas>
+	<div>
+	<input placeholder="What?" type="text">
+	</div>
+</div>
+
+<div style="position:absolute; right: 10px; top: 20px;">
+	<ul>
+		<li>Start car</li>
+		<li>Crash red car</li>
+	<ul>
+</div>
+
+</body>
+</html>

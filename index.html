@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title></title>
     <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+	<script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
 </head>
 <body onload="init();">
   <canvas id="demoCanvas" width="1200" height="840" style="background: #f1f1f1;"></canvas>
@@ -20,19 +21,38 @@
 
 	var image2 = new createjs.Bitmap("stageCity01.png");
 	stage.addChild(image2);
+	image2.x = -1200;
 
     var circle = new createjs.Shape();
 	circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 50);
 	circle.x = 100;
 	circle.y = 100;
 	//stage.addChild(circle);
-	image2.x = -1200;
+	
+	createjs.Ticker.setFPS(60);
+	createjs.Ticker.addEventListener("tick", stage);
 
-	createjs.Ticker.addEventListener("tick", handleTick);
+	createjs.Tween.get(image, { loop: true })
+	  .to({ x: 1200 }, 5000, createjs.Ease.linear(0))
+	  .to({ x: 0 }, 0, createjs.Ease.none());
+	  
+	createjs.Tween.get(image2, { loop: true })
+	  .to({ x: 1200 }, 10000, createjs.Ease.linear(0))
+	  .to({ x: -1200 }, 0, createjs.Ease.none());
+	
+	//createjs.Ticker.addEventListener("tick", handleTick);
 	function handleTick(event) {
-	    image.x += 1;
-	    image2.x += 1;
+	    image.x += 2;
+	    image2.x += 2;
+		resetImage(image);
+		resetImage(image2);
 	    stage.update();
+	}
+	
+	function resetImage(image) {
+		if(image.x >= 1200) {
+			image.x = -1200;
+		}
 	}
   }
 </script>
