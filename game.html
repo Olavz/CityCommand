@@ -4,6 +4,7 @@
 	<meta charset="utf-8">
 	<title>CityCommand</title>
 
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 	<script src="preloadjs-NEXT.min.js"></script>
 	<script src="easeljs-NEXT.combined.js"></script>
 	<!-- We also provide hosted minified versions of all CreateJS libraries.
@@ -60,6 +61,7 @@
 	function addCar() {
 		var greenCarImg = loader.getResult("greenCar");
 		var car = new createjs.Shape();
+		car.color = 'green';
 		car.graphics.beginBitmapFill(greenCarImg).drawRect(0, 0, greenCarImg.width, greenCarImg.height);
 		car.y = h - greenCarImg.height - 100;
 		car.x = rand(0, w);
@@ -67,9 +69,34 @@
 		return car;
 	}
 	
+	function listCars() {
+		for(var i=0; i<cars.length; i++) {
+			console.log(cars[i]);
+		}
+	}
+	
 	function rand(min, max) {
 		return Math.floor((Math.random() * max) + min);
 	}
+	
+	function processCommand(command) {
+		if(command == 'add car') {
+			console.log("Add car");
+			addCar();
+		} else if(command == 'cars') {
+			console.log("List cars");
+			listCars();
+		}
+	}
+	
+	$(document).ready(function() {
+		$(".txtInput").keydown(function(event) {
+			if ( event.which == 13 ) {
+				processCommand( $(".txtInput").val() );
+				$(".txtInput").val('');
+			}
+		});
+	});
 	
 </script>
 </head>
@@ -79,7 +106,7 @@
 <div>
 	<canvas id="testCanvas" width="1200" height="600" style="background:skyblue;"></canvas>
 	<div>
-	<input placeholder="What?" type="text">
+	<input placeholder="What?" class="txtInput" type="text">
 	</div>
 </div>
 
