@@ -23,8 +23,11 @@
 		manifest = [
 			{src: "road.png", id: "road"},
 			{src: "house.png", id: "house"},
-			{src: "redCar.png", id: "redCar"},
-			{src: "greenCar.png", id: "greenCar"}
+			{src: "assets/cars/red.png", id: "redCar"},
+			{src: "assets/cars/black.png", id: "blackCar"},
+			{src: "assets/cars/blue.png", id: "blueCar"},
+			{src: "assets/cars/yellow.png", id: "yellowCar"},
+			{src: "assets/cars/green.png", id: "greenCar"}
 		];
 		loader = new createjs.LoadQueue(false);
 		loader.addEventListener("complete", handleComplete);
@@ -38,15 +41,7 @@
 		road.y = h - roadImg.height - 30;
 		stage.addChild(road);
 		
-		cars.push(addCar());
-		cars.push(addCar());
-		
-		var redCarImg = loader.getResult("redCar");
-		redCar = new createjs.Shape();
-		redCar.graphics.beginBitmapFill(redCarImg).drawRect(0, 0, redCarImg.width, redCarImg.height);
-		redCar.y = h - redCarImg.height - 100;
-		redCar.x = w/3;
-		stage.addChild(redCar);
+		addCar();
 		
 		createjs.Ticker.timingMode = createjs.Ticker.RAF;
 		createjs.Ticker.addEventListener("tick", tick);
@@ -58,15 +53,32 @@
 		stage.update(event);
 	}
 	
-	function addCar() {
-		var greenCarImg = loader.getResult("greenCar");
-		var car = new createjs.Shape();
-		car.color = 'green';
-		car.graphics.beginBitmapFill(greenCarImg).drawRect(0, 0, greenCarImg.width, greenCarImg.height);
-		car.y = h - greenCarImg.height - 100;
+	function addCar(color) {
+        var carImg;
+        var car = new createjs.Shape();
+
+	    if(color == "red") {
+            carImg = loader.getResult("redCar");
+        } else if(color == "green") {
+            carImg = loader.getResult("greenCar");
+        } else if(color == "blue") {
+            carImg = loader.getResult("blueCar");
+        } else if(color == "black") {
+            carImg = loader.getResult("blackCar");
+        } else if(color == "yellow") {
+            carImg = loader.getResult("yellowCar");
+        } else {
+	        // Unknown color, use default..
+            console.log("Could not detect car color. Defaulting to red.");
+	        carImg = loader.getResult("redCar");
+        }
+
+		car.color = color;
+		car.graphics.beginBitmapFill(carImg).drawRect(0, 0, carImg.width, carImg.height);
+		car.y = h - carImg.height - 100;
 		car.x = rand(0, w);
 		stage.addChild(car);
-		return car;
+		cars.push(car);
 	}
 	
 	function listCars() {
@@ -80,14 +92,30 @@
 	}
 	
 	function processCommand(command) {
-		if(command == 'add car') {
-			console.log("Add car");
-			addCar();
-		} else if(command == 'cars') {
-			console.log("List cars");
-			listCars();
-		}
+        command = encodeURI(command);
+        var queryUrl = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/debef6ae-3aaf-470e-9f3c-2125b73f1101?subscription-key=095f885f532546eaa873960a8f3cd285&q="+command+"&verbose=false";
+        $.getJSON( queryUrl, function(data) {
+            console.log( data );
+
+            if(data.topScoringIntent.intent == "spawnCar") {
+                var color = null;
+                for(var i=0; i<data.entities.length; i++) {
+                    console.log(data.entities[i]);
+                    if(data.entities[i].type == "color") {
+                        color = data.entities[i].entity;
+                    }
+                }
+                if(color != null) {
+                    addCar(color);
+                } else {
+                    addCar();
+                }
+			} else if(data.topScoringIntent.intent == "list") {
+
+			}
+        })
 	}
+
 	
 	$(document).ready(function() {
 		$(".txtInput").keydown(function(event) {
