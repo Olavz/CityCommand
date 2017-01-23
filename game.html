@@ -11,11 +11,14 @@
 	  http://code.createjs.com -->
 
 <script id="editable">
+    const ADD_CAR_INTENT = "AddCar";
+    const LIST_CARS_INTENT = "ListCars";
+    const COLOR_ENTITY = "Color";
+
 	var stage, w, h, loader;
 	var house, road, redCar;
 	var cars = new Array();
 	function init() {
-		
 		stage = new createjs.Stage("testCanvas");
 		// grab canvas width and height for later calculations:
 		w = stage.canvas.width;
@@ -33,6 +36,7 @@
 		loader.addEventListener("complete", handleComplete);
 		loader.loadManifest(manifest, true, "");
 	}
+
 	function handleComplete() {
 		var roadImg = loader.getResult("road");
 		road = new createjs.Shape();
@@ -90,18 +94,19 @@
 	function rand(min, max) {
 		return Math.floor((Math.random() * max) + min);
 	}
+
 	
 	function processCommand(command) {
         command = encodeURI(command);
-        var queryUrl = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/debef6ae-3aaf-470e-9f3c-2125b73f1101?subscription-key=095f885f532546eaa873960a8f3cd285&q="+command+"&verbose=false";
+        var queryUrl = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/b24f3e20-a3fa-4d97-8455-926be73bca00?subscription-key=095f885f532546eaa873960a8f3cd285&q="+command+"&verbose=false";
         $.getJSON( queryUrl, function(data) {
             console.log( data );
 
-            if(data.topScoringIntent.intent == "spawnCar") {
+            if(data.topScoringIntent.intent == ADD_CAR_INTENT) {
                 var color = null;
                 for(var i=0; i<data.entities.length; i++) {
                     console.log(data.entities[i]);
-                    if(data.entities[i].type == "color") {
+                    if(data.entities[i].type == COLOR_ENTITY) {
                         color = data.entities[i].entity;
                     }
                 }
