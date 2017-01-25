@@ -1,219 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>CityCommand</title>
+    <meta charset="utf-8">
+    <title>CityCommand</title>
 
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<script src="preloadjs-NEXT.min.js"></script>
-	<script src="easeljs-NEXT.combined.js"></script>
-	<!-- We also provide hosted minified versions of all CreateJS libraries.
-	  http://code.createjs.com -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script src="preloadjs-NEXT.min.js"></script>
+    <script src="easeljs-NEXT.combined.js"></script>
+    <!-- We also provide hosted minified versions of all CreateJS libraries.
+      http://code.createjs.com -->
 
-	<style>
-		ul {
-			list-style:none;
-			padding:0;
-			margin:0;
-		}
-		li {
-			border: 1px solid #ccc;
-			padding: 10px;
-			margin-top: 2px;
-		}
-	</style>
-
-<script id="editable">
-    const ADD_CAR_INTENT = "AddCar";
-    const SET_BACKGROUND_COLOR_INTENT = "SetBackground";
-    const LIST_CARS_INTENT = "ListCars";
-    const COLOR_ENTITY = "Color";
-
-	var stage, w, h, loader;
-	var house, road, redCar;
-	var cars = new Array();
-	function init() {
-		stage = new createjs.Stage("testCanvas");
-		// grab canvas width and height for later calculations:
-		w = stage.canvas.width;
-		h = stage.canvas.height;
-		manifest = [
-			{src: "road.png", id: "road"},
-			{src: "house.png", id: "house"},
-			{src: "assets/cars/red.png", id: "redCar"},
-			{src: "assets/cars/black.png", id: "blackCar"},
-			{src: "assets/cars/blue.png", id: "blueCar"},
-			{src: "assets/cars/yellow.png", id: "yellowCar"},
-			{src: "assets/cars/green.png", id: "greenCar"}
-		];
-		loader = new createjs.LoadQueue(false);
-		loader.addEventListener("complete", handleComplete);
-		loader.loadManifest(manifest, true, "");
-	}
-
-	function handleComplete() {
-		var roadImg = loader.getResult("road");
-		road = new createjs.Shape();
-		road.graphics.beginBitmapFill(roadImg).drawRect(0, 0, w + roadImg.width, roadImg.height);
-		road.tileW = roadImg.width;
-		road.y = h - roadImg.height - 30;
-		stage.addChild(road);
-		
-		createjs.Ticker.timingMode = createjs.Ticker.RAF;
-		createjs.Ticker.addEventListener("tick", tick);
-	}
-
-	function tick(event) {
-		var deltaS = event.delta / 1000;
-		road.x = (road.x - deltaS * 150) % road.tileW;
-		stage.update(event);
-	}
-	
-	function addCar(color) {
-        var carImg;
-        var car = new createjs.Shape();
-
-	    if(color == "red") {
-            carImg = loader.getResult("redCar");
-        } else if(color == "green") {
-            carImg = loader.getResult("greenCar");
-        } else if(color == "blue") {
-            carImg = loader.getResult("blueCar");
-        } else if(color == "black") {
-            carImg = loader.getResult("blackCar");
-        } else if(color == "yellow") {
-            carImg = loader.getResult("yellowCar");
-        } else {
-	        // Unknown color, use default..
-            console.log("Could not detect car color. Defaulting to red.");
-	        carImg = loader.getResult("redCar");
+    <style>
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-		car.color = color;
-		car.graphics.beginBitmapFill(carImg).drawRect(0, 0, carImg.width, carImg.height);
-		car.y = h - carImg.height - 100;
-		car.x = rand(0, w);
-		stage.addChild(car);
-		cars.push(car);
-	}
-
-	function removeCar(position, color) {
-	    var index = position;
-	    var car = cars[index];
-		stage.removeChild(car);
-        cars.splice(index, 1);
-    }
-
-    function removeAllCars(color) {
-        for(var i=0; i<cars.length; i++) {
-            console.log(i);
-            if(cars[i].color == color) {
-                // Use color to filter out cars.
-                stage.removeChild(cars[i]);
-                cars.splice(i, 1);
-                console.log("Color: " + cars.length);
-			} else {
-                stage.removeChild(cars[i]);
-                cars.splice(i, 1);
-                console.log("NoCol: " + cars.length);
-			}
+        li {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 2px;
         }
-    }
+    </style>
 
-	function setBackgroundColor(color) {
-	    $("#testCanvas").css("background-color", color);
-	}
-	
-	function listCars() {
-		for(var i=0; i<cars.length; i++) {
-			console.log(cars[i]);
-		}
-	}
-	
-	function rand(min, max) {
-		return Math.floor((Math.random() * max) + min);
-	}
+    <script id="editable">
+        const ADD_CAR_INTENT = "AddCar";
+        const SET_BACKGROUND_COLOR_INTENT = "SetBackground";
+        const REMOVE_CARS_INTENT = "RemoveAllCars";
+        const LIST_CARS_INTENT = "ListCars";
+        const COLOR_ENTITY = "Color";
 
-	
-	function processCommand(command) {
-        var queryUrl = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/b24f3e20-a3fa-4d97-8455-926be73bca00?subscription-key=095f885f532546eaa873960a8f3cd285&q="+encodeURI(command)+"&verbose=false";
-        $.getJSON( queryUrl, function(data) {
-            console.log( data );
-            var entities = prittyPrintEntities(data);
-            if(data.topScoringIntent.intent == ADD_CAR_INTENT) {
-                var color = null;
-                for(var i=0; i<data.entities.length; i++) {
-                    console.log(data.entities[i]);
-                    if(data.entities[i].type == COLOR_ENTITY) {
-                        color = data.entities[i].entity;
+        const API_QUERY_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/b24f3e20-a3fa-4d97-8455-926be73bca00?subscription-key=095f885f532546eaa873960a8f3cd285&q=";
+
+        var stage, w, h, loader;
+        var house, road, redCar;
+        var cars = new Array();
+        function init() {
+            stage = new createjs.Stage("testCanvas");
+            // grab canvas width and height for later calculations:
+            w = stage.canvas.width;
+            h = stage.canvas.height;
+            manifest = [
+                {src: "road.png", id: "road"},
+                {src: "house.png", id: "house"},
+                {src: "assets/cars/red.png", id: "redCar"},
+                {src: "assets/cars/black.png", id: "blackCar"},
+                {src: "assets/cars/blue.png", id: "blueCar"},
+                {src: "assets/cars/yellow.png", id: "yellowCar"},
+                {src: "assets/cars/green.png", id: "greenCar"}
+            ];
+            loader = new createjs.LoadQueue(false);
+            loader.addEventListener("complete", handleComplete);
+            loader.loadManifest(manifest, true, "");
+        }
+
+        function handleComplete() {
+            var roadImg = loader.getResult("road");
+            road = new createjs.Shape();
+            road.graphics.beginBitmapFill(roadImg).drawRect(0, 0, w + roadImg.width, roadImg.height);
+            road.tileW = roadImg.width;
+            road.y = h - roadImg.height - 30;
+            stage.addChild(road);
+
+            createjs.Ticker.timingMode = createjs.Ticker.RAF;
+            createjs.Ticker.addEventListener("tick", tick);
+        }
+
+        function tick(event) {
+            var deltaS = event.delta / 1000;
+            road.x = (road.x - deltaS * 150) % road.tileW;
+            stage.update(event);
+        }
+
+        function addCar(color) {
+            var carImg;
+            var car = new createjs.Shape();
+
+            if (color == "red") {
+                carImg = loader.getResult("redCar");
+            } else if (color == "green") {
+                carImg = loader.getResult("greenCar");
+            } else if (color == "blue") {
+                carImg = loader.getResult("blueCar");
+            } else if (color == "black") {
+                carImg = loader.getResult("blackCar");
+            } else if (color == "yellow") {
+                carImg = loader.getResult("yellowCar");
+            } else {
+                // Unknown color, use default..
+                console.log("Could not detect car color. Defaulting to red.");
+                carImg = loader.getResult("redCar");
+            }
+
+            car.color = color;
+            car.graphics.beginBitmapFill(carImg).drawRect(0, 0, carImg.width, carImg.height);
+            car.y = h - carImg.height - 100;
+            car.x = rand(0, w);
+            stage.addChild(car);
+            cars.push(car);
+        }
+
+        function removeAllCars(color) {
+            for (var i = cars.length - 1; i >= 0; i--) {
+                if (color) {
+                    if(color == cars[i].color) {
+                        stage.removeChild(cars[i]);
+                        cars.splice(i, 1);
+                        console.log("Color: " + cars.length);
                     }
-                }
-                if(color != null) {
-                    addCar(color);
                 } else {
-                    addCar();
+                    stage.removeChild(cars[i]);
+                    cars.splice(i, 1);
+                    console.log("NoCol: " + cars.length);
                 }
-
-			} else if(data.topScoringIntent.intent == SET_BACKGROUND_COLOR_INTENT) {
-                var color = null;
-                for(var i=0; i<data.entities.length; i++) {
-                    if(data.entities[i].type == COLOR_ENTITY) {
-                        color = data.entities[i].entity;
-                    }
-                }
-                if(color) {
-                    setBackgroundColor(color);
-				} else {
-                    setBackgroundColor("white");
-				}
-			}
-
-            $("#listHistory li:first").before("<li>\""+ command + "\"<br> " + data.topScoringIntent.intent + "("+data.topScoringIntent.score+")<br>"+entities+"</li>");
-        })
-	}
-
-	function prittyPrintEntities(data) {
-	    var entities = "";
-        for(var i=0; i<data.entities.length; i++) {
-            entities += "<i>" + data.entities[i].type + ":" + data.entities[i].entity + "</i> ";
+            }
         }
-        return entities;
-    }
 
-	
-	$(document).ready(function() {
-		$(".txtInput").keydown(function(event) {
-			if ( event.which == 13 ) {
-				processCommand( $(".txtInput").val() );
-				$(".txtInput").val('');
-			}
-		});
-	});
-	
-</script>
+        function setBackgroundColor(color) {
+            $("#testCanvas").css("background-color", color);
+        }
+
+        function listCars() {
+            for (var i = 0; i < cars.length; i++) {
+                console.log(cars[i]);
+            }
+        }
+
+        function rand(min, max) {
+            return Math.floor((Math.random() * max) + min);
+        }
+
+
+        function processCommand(command) {
+            var queryUrl = API_QUERY_URL + encodeURI(command);
+            $.getJSON(queryUrl, function (data) {
+                var entities = prittyPrintEntities(data);
+                if (data.topScoringIntent.intent == ADD_CAR_INTENT) {
+                    var color = null;
+                    for (var i = 0; i < data.entities.length; i++) {
+                        if (data.entities[i].type == COLOR_ENTITY) {
+                            color = data.entities[i].entity;
+                        }
+                    }
+                    if (color != null) {
+                        addCar(color);
+                    } else {
+                        addCar();
+                    }
+                } else if (data.topScoringIntent.intent == SET_BACKGROUND_COLOR_INTENT) {
+                    var color = null;
+                    for (var i = 0; i < data.entities.length; i++) {
+                        if (data.entities[i].type == COLOR_ENTITY) {
+                            color = data.entities[i].entity;
+                        }
+                    }
+                    if (color) {
+                        setBackgroundColor(color);
+                    } else {
+                        setBackgroundColor("white");
+                    }
+                } else if (data.topScoringIntent.intent == REMOVE_CARS_INTENT) {
+                    removeAllCars();
+                }
+
+                $("#listHistory li:first").before("<li>\"" + command + "\"<br> " + data.topScoringIntent.intent + "(" + data.topScoringIntent.score + ")<br>" + entities + "</li>");
+            })
+        }
+
+        function prittyPrintEntities(data) {
+            var entities = "";
+            for (var i = 0; i < data.entities.length; i++) {
+                entities += "<i>" + data.entities[i].type + ":" + data.entities[i].entity + "</i> ";
+            }
+            return entities;
+        }
+
+
+        $(document).ready(function () {
+            $(".txtInput").keydown(function (event) {
+                if (event.which == 13) {
+                    processCommand($(".txtInput").val());
+                    $(".txtInput").val('');
+                }
+            });
+        });
+
+    </script>
 </head>
 
 <body onload="init();">
 
 <div class="container">
-	<div class="row">
-		<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
 
-			<canvas id="testCanvas" width="1200" height="600" style="background:skyblue;"></canvas>
+            <canvas id="testCanvas" width="1200" height="600" style="background:skyblue;"></canvas>
 
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12">
-			<input placeholder="What?" class="txtInput form-control" type="text">
-			<ul id="listHistory">
-				<li></li>
-			</ul>
-		</div>
-	</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <input placeholder="What?" class="txtInput form-control" type="text">
+            <ul id="listHistory">
+                <li></li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 
