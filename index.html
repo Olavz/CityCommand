@@ -100,6 +100,29 @@
 		cars.push(car);
 	}
 
+	function removeCar(position, color) {
+	    var index = position;
+	    var car = cars[index];
+		stage.removeChild(car);
+        cars.splice(index, 1);
+    }
+
+    function removeAllCars(color) {
+        for(var i=0; i<cars.length; i++) {
+            console.log(i);
+            if(cars[i].color == color) {
+                // Use color to filter out cars.
+                stage.removeChild(cars[i]);
+                cars.splice(i, 1);
+                console.log("Color: " + cars.length);
+			} else {
+                stage.removeChild(cars[i]);
+                cars.splice(i, 1);
+                console.log("NoCol: " + cars.length);
+			}
+        }
+    }
+
 	function setBackgroundColor(color) {
 	    $("#testCanvas").css("background-color", color);
 	}
@@ -137,7 +160,6 @@
 			} else if(data.topScoringIntent.intent == SET_BACKGROUND_COLOR_INTENT) {
                 var color = null;
                 for(var i=0; i<data.entities.length; i++) {
-                    console.log(data.entities[i]);
                     if(data.entities[i].type == COLOR_ENTITY) {
                         color = data.entities[i].entity;
                     }
